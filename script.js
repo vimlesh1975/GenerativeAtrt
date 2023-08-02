@@ -13,7 +13,7 @@ ctx.lineWidth = 1;
 ctx.strokeStyle = `black`;
 
 // console.log(ctx);
-const maxNumberofBlocks = 50;
+const maxNumberofBlocks = 75;
 var blockArray = [];
 var mouseDown = false;
 
@@ -27,6 +27,9 @@ class Block {
     this.width = Math.random() * 50;
     this.height = Math.random() * 50;
     this.lifetime = Math.random() * 1000;
+    this.history = [{ x: this._xPos, y: this._yPos }];
+    this.angle = 0;
+    this.maxNumberofHistory = Math.random() * 30 + 20;
   }
   draw(ctx) {
     ctx.fillStyle = this.color;
@@ -36,17 +39,31 @@ class Block {
     ctx.stroke();
     ctx.fill();
   }
+  drawTrail(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(this.history[0].x, this.history[0].y);
+    for (let i = 1; i < this.history.length; i++) {
+      ctx.lineTo(this.history[i].x, this.history[i].y);
+    }
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = this.color;
+    ctx.stroke();
+  }
   update() {
     this.lifetime--;
-
-    this._xPos += this.speedX;
+    this.angle += 1;
+    this._xPos += this.speedX + 5 * Math.sin(this.angle) + 5;
     if (this._yPos < 0 || this._yPos > window.innerHeight - this.height) {
       this.speedY = -this.speedY;
     }
 
-    this._yPos += this.speedY;
+    this._yPos += this.speedY + 5 * Math.cos(this.angle) + 4;
     if (this._xPos < 0 || this._xPos > window.innerWidth - this.width) {
       this.speedX = -this.speedX;
+    }
+    this.history.push({ x: this._xPos, y: this._yPos });
+    if (this.history.length > this.maxNumberofHistory) {
+      this.history.shift();
     }
   }
 }
@@ -58,16 +75,15 @@ for (let index = 0; index < maxNumberofBlocks; index++) {
 const animate = () => {
   ctx.clearRect(0, 0, window.innerWidth, window.innerWidth);
   const newBlockArray = blockArray.filter((block) => block.lifetime > 0);
-  // if (newBlockArray.length < maxNumberofBlocks) {
-  //   blockArray.push(new Block());
-  // }
 
-  newBlockArray.forEach((block) => {
+  blockArray = [...newBlockArray];
+  blockArray.forEach((block) => {
     block.draw(ctx);
     block.update();
+    block.drawTrail(ctx);
 
     // draw lines
-    newBlockArray.forEach((aa) => {
+    blockArray.forEach((aa) => {
       const dx = block._xPos - aa._xPos;
       const dy = block._yPos - aa._yPos;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -81,7 +97,6 @@ const animate = () => {
       }
     });
   });
-
   requestAnimationFrame(animate);
 };
 animate();
@@ -90,14 +105,16 @@ window.addEventListener('click', (e) => {
   const aa = new Block();
   aa._xPos = e.x;
   aa._yPos = e.y;
+  aa.history = [{ x: aa._xPos, y: aa._yPos }];
   blockArray.push(aa);
 });
 
 window.addEventListener('mousemove', (e) => {
-  if (mouseDown) {
+  if (mouseDown && blockArray.length < maxNumberofBlocks) {
     const aa = new Block();
     aa._xPos = e.x;
     aa._yPos = e.y;
+    aa.history = [{ x: aa._xPos, y: aa._yPos }];
     blockArray.push(aa);
   }
 });
