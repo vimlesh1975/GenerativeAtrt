@@ -66,11 +66,13 @@ class Block {
       this.history.shift();
     }
   }
+  static init() {
+    for (let index = 0; index < maxNumberofBlocks; index++) {
+      blockArray.push(new Block());
+    }
+  }
 }
-
-for (let index = 0; index < maxNumberofBlocks; index++) {
-  blockArray.push(new Block());
-}
+Block.init();
 
 const animate = () => {
   ctx.clearRect(0, 0, window.innerWidth, window.innerWidth);
