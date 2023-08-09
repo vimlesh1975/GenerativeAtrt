@@ -10,7 +10,7 @@ let scale = 10;
 
 class Fibbonachi {
   constructor() {
-    this.angle = number * 9;
+    this.angle = number * Math.random()*9;
     this.radius = scale * Math.sqrt(number);
     this.x = this.radius * Math.sin(this.angle) + canvas.width / 2;
     this.y = this.radius * Math.cos(this.angle) + canvas.height / 2;
@@ -36,12 +36,27 @@ class Fibbonachi {
   }
 }
 
+const numerofFibonachi=10
+const arrayOfFobonachi=[]
+for (let index = 0; index < numerofFibonachi; index++) {
+  arrayOfFobonachi.push(new Fibbonachi())
+  
+}
+
 const aa = new Fibbonachi();
 
 const animate = () => {
-  aa.update();
-  aa.draw(ctx);
+  arrayOfFobonachi.forEach(aa => {
+    aa.update();
+    aa.draw(ctx);
+  
+  });
 
   requestAnimationFrame(() => animate());
 };
+
+setInterval(() => {
+  ctx.clearRect(0,0, canvas.width, canvas.height)
+  number=0
+}, 5000);
 animate();
